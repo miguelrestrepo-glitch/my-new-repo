@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ALQUIPC – Facturación mejorada</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f3f6fb;--card:#fff;--tx:#1b2433;--mut:#5b6678;--pri:#2563eb;--ok:#15803d;--bad:#b91c1c;--bd:#d9e0ec;--row:#eef3fb}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1624;--card:#18223a;--tx:#e8edf7;--mut:#9aa7bd;--pri:#6ea0ff;--ok:#4ade80;--bad:#f87171;--bd:#2c3a58;--row:#1d2946}}
+:root[data-theme="dark"]{--bg:#0f1624;--card:#18223a;--tx:#e8edf7;--mut:#9aa7bd;--pri:#6ea0ff;--ok:#4ade80;--bad:#f87171;--bd:#2c3a58;--row:#1d2946}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.5}
+header{background:linear-gradient(135deg,#1d4ed8,#7c3aed);color:#fff;padding:18px 16px}
+header h1{margin:0;font-size:1.35rem}header p{margin:4px 0 0;opacity:.9;font-size:.88rem}
+main{max-width:860px;margin:0 auto;padding:16px}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+nav button{flex:1;min-width:110px;padding:10px;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:10px;cursor:pointer;font-size:.92rem}
+nav button.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:18px;margin-bottom:14px}
+h2{margin:0 0 6px;font-size:1.1rem}.hint{color:var(--mut);font-size:.88rem;margin:0 0 8px}
+.steps{display:flex;gap:6px;margin-bottom:14px}.steps span{flex:1;text-align:center;font-size:.78rem;padding:6px 2px;border-radius:8px;background:var(--row);color:var(--mut)}
+.steps span.on{background:var(--pri);color:#fff}.steps span.done{background:var(--ok);color:#fff}
+label{display:block;font-weight:600;margin:10px 0 4px;font-size:.88rem}
+input,select{width:100%;padding:10px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font-size:1rem}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:10px;border:1px solid var(--bd);border-radius:10px;margin-top:8px;cursor:pointer}
+.opt input{width:auto;margin-top:4px}.opt small{display:block;color:var(--mut)}
+.btns{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+button.b{padding:10px 16px;border:0;border-radius:8px;cursor:pointer;font-size:.95rem;background:var(--pri);color:#fff}
+button.b.sec{background:transparent;color:var(--pri);border:1px solid var(--pri)}
+.msg{margin-top:12px;padding:10px 12px;border-radius:8px;font-size:.9rem;display:none;background:rgba(185,28,28,.14);color:var(--bad)}
+.msg.on{display:block}
+.inv{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88rem}
+.inv div{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px dashed var(--bd)}
+.inv .t{font-weight:700;font-size:1rem;border-bottom:0;color:var(--pri)}
+.inv .neg{color:var(--ok)}.inv .pos{color:var(--bad)}
+.wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:.84rem;min-width:560px}
+th,td{border:1px solid var(--bd);padding:7px 8px;text-align:left;vertical-align:top}
+th{background:var(--pri);color:#fff}tr:nth-child(even) td{background:var(--row)}
+.s{color:var(--ok);font-weight:700}
+pre{margin:0;white-space:pre-wrap;word-break:break-word;font-size:.82rem;max-height:300px;overflow:auto;background:var(--bg);padding:10px;border-radius:8px}
+.hide{display:none}.time{font-size:.8rem;color:var(--mut);margin-top:8px}
+</style>
+</head>
+<body>
+<header><h1>💻 ALQUIPC · Facturación de alquiler de equipos</h1><p>Versión mejorada de pruebas1.exe</p></header>
+<main>
+<nav>
+<button class="on" data-t="app">Facturación</button>
+<button data-t="his">Historial</button>
+<button data-t="log">Registro de errores</button>
+</nav>
+
+<section id="app">
+<div class="steps" id="steps"><span>1 Cliente</span><span>2 Servicio</span><span>3 Alquiler</span><span>4 Factura</span></div>
+
+<div class="card" data-s="0">
+<h2>Bienvenido estimado cliente a A L Q U I P C</h2>
+<p class="hint">Paso 1: datos del cliente. El Id_Cliente se asigna automáticamente: <b id="nid"></b></p>
+<label for="nom">Nombre del cliente</label><input id="nom" maxlength="60" autocomplete="name">
+<label for="fon">Teléfono</label><input id="fon" inputmode="tel" maxlength="15" placeholder="3001234567">
+<label for="mail">E-mail (aquí se envía la factura)</label><input id="mail" type="email" maxlength="80" placeholder="cliente@correo.com">
+</div>
+
+<div class="card hide" data-s="1">
+<h2>Tipos de servicios ofrecidos</h2>
+<p class="hint">Paso 2: elija dónde se usarán los equipos.</p>
+<label class="opt"><input type="radio" name="tp" value="1" checked><span><b>[1] Dentro de la ciudad</b><small>Sin recargos ni descuentos</small></span></label>
+<label class="opt"><input type="radio" name="tp" value="2"><span><b>[2] Fuera de la ciudad</b><small>Incremento del 5 % por servicio de domicilio</small></span></label>
+<label class="opt"><input type="radio" name="tp" value="3"><span><b>[3] Dentro del establecimiento</b><small>Descuento adicional del 5 %</small></span></label>
+</div>
+
+<div class="card hide" data-s="2">
+<h2>Datos del alquiler</h2>
+<p class="hint">Paso 3: valor por equipo y por día: $35.000 · mínimo 2 equipos · solo alquiler por días.</p>
+<label for="eq">Número de equipos que desea alquilar (mín. 2)</label><input id="eq" type="number" min="2" max="500" step="1" value="2">
+<label for="di">Días que desea tomar el alquiler (mín. 1)</label><input id="di" type="number" min="1" max="365" step="1" value="1">
+<label for="ad">Días adicionales que toma el alquiler (opcional)</label><input id="ad" type="number" min="0" max="365" step="1" value="0">
+<p class="hint">Cada día adicional tiene 2 % más de descuento sobre el día anterior, con un tope del 20 % para proteger a la empresa.</p>
+</div>
+
+<div class="card hide" data-s="3">
+<h2>Factura <span id="ft"></span></h2>
+<div class="inv" id="inv"></div>
+<p class="hint" style="margin-top:12px">Sin impresión (cuidamos el papel): la factura se envía por e-mail.</p>
+<div class="btns"><a class="b" id="mt" style="text-decoration:none;display:inline-block;padding:10px 16px;border-radius:8px;background:var(--pri);color:#fff">📧 Enviar por e-mail</a><button class="b sec" id="cp">Copiar texto</button></div>
+</div>
+
+<div class="msg" id="m"></div>
+<div class="btns"><button class="b sec" id="back">← Atrás</button><button class="b" id="next">Siguiente →</button></div>
+<div class="time" id="tm"></div>
+</section>
+
+<section id="his" class="hide"><div class="card"><h2>Facturas generadas</h2><pre id="hbox"></pre><div class="btns"><button class="b sec" id="hclr">Borrar historial</button></div></div></section>
+<section id="log" class="hide"><div class="card"><h2>log_errores (diagnóstico)</h2><pre id="lbox"></pre><div class="btns"><button class="b sec" id="lclr">Limpiar log</button></div></div></section>
+</main>
+
+<script>
+var PRECIO=35000,MIN_EQ=2,TOPE=0.20,PASO=0.02,AJ=0.05,step=0,last=null;
+var KH='alq_h',KL='alq_l',KC='alq_c',mem={};
+function $(i){return document.getElementById(i)}
+function rd(k){try{var v=localStorage.getItem(k);return v===null?mem[k]:v}catch(e){return mem[k]}}
+function wr(k,v){mem[k]=v;try{localStorage.setItem(k,v)}catch(e){}}
+function arr(k){try{var a=JSON.parse(rd(k)||'[]');return Array.isArray(a)?a:[]}catch(e){wr(k,'[]');log('Datos dañados en '+k+': restablecidos, el sistema continúa');return []}}
+function log(t){var a=arr(KL);a.push(new Date().toLocaleString()+' · '+t);wr(KL,JSON.stringify(a.slice(-200)));drawL()}
+function drawL(){var a=arr(KL);$('lbox').textContent=a.length?a.join('\n'):'Sin errores registrados.'}
+function drawH(){var a=arr(KH);$('hbox').textContent=a.length?a.join('\n\n———\n\n'):'Aún no hay facturas.'}
+function $$(n){return Math.round(n).toLocaleString('es-CO')}
+function money(n){return '$ '+$$(n)}
+function nextId(){var n=parseInt(rd(KC)||'0',10);if(isNaN(n))n=0;return 'ALQ-'+String(n+1).padStart(4,'0')}
+
+/* Regla de negocio (modular, fácil de cambiar) */
+function calcular(tipo,eq,dias,adic){
+  var base=eq*dias*PRECIO,adicional=0;
+  for(var k=1;k<=adic;k++)adicional+=eq*PRECIO*(1-Math.min(PASO*k,TOPE));
+  var bruto=base+adicional,ajuste=tipo===2?bruto*AJ:tipo===3?-bruto*AJ:0;
+  var descAdic=eq*PRECIO*adic-adicional;
+  return {base:base,adicional:adicional,descAdic:descAdic,ajuste:ajuste,total:bruto+ajuste};
+}
+var NOM={1:'Dentro de la ciudad',2:'Fuera de la ciudad',3:'Dentro del establecimiento'};
+
+function err(t,detail){$('m').textContent=t;$('m').className='msg on';if(detail)log(detail)}
+function int(id){var v=$(id).value.trim();return /^\d+$/.test(v)?parseInt(v,10):NaN}
+function validar(s){
+  if(s===0){
+    if(!/^[A-Za-zÁÉÍÓÚáéíóúÑñ' ]{3,60}$/.test($('nom').value.trim()))return err('Nombre inválido: use solo letras (mín. 3).','Nombre inválido')||0;
+    if(!/^\d{7,10}$/.test($('fon').value.trim()))return err('Teléfono inválido: use de 7 a 10 dígitos.','Teléfono inválido')||0;
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test($('mail').value.trim()))return err('E-mail inválido. Ejemplo: cliente@correo.com','E-mail inválido')||0;
+  }
+  if(s===2){
+    var e=int('eq'),d=int('di'),a=$('ad').value.trim()===''?0:int('ad');
+    if(isNaN(e)||e<MIN_EQ)return err('El mínimo es de 2 equipos (número entero).','Equipos inválidos: '+$('eq').value)||0;
+    if(e>500)return err('Máximo 500 equipos por solicitud.','Equipos fuera de rango')||0;
+    if(isNaN(d)||d<1||d>365)return err('Los días deben ser un número entero entre 1 y 365 (no se alquila por horas).','Días inválidos: '+$('di').value)||0;
+    if(isNaN(a)||a<0||a>365)return err('Los días adicionales deben ser un entero entre 0 y 365.','Días adicionales inválidos: '+$('ad').value)||0;
+  }
+  return 1;
+}
+function show(){
+  document.querySelectorAll('[data-s]').forEach(function(c){c.classList.toggle('hide',+c.dataset.s!==step)});
+  document.querySelectorAll('#steps span').forEach(function(s,i){s.className=i===step?'on':i<step?'done':''});
+  $('back').classList.toggle('hide',step===0);
+  $('next').textContent=step===3?'Nueva factura':step===2?'Generar factura':'Siguiente →';
+  $('m').className='msg';
+}
+function factura(){
+  var t0=performance.now(),tipo=+document.querySelector('input[name=tp]:checked').value;
+  var e=int('eq'),d=int('di'),a=$('ad').value.trim()===''?0:int('ad');
+  var r=calcular(tipo,e,d,a),id=nextId();
+  var rows=[['Cliente',$('nom').value.trim()],['Id_Cliente',id],['Teléfono',$('fon').value.trim()],['E-mail',$('mail').value.trim()],['Tipo de servicio',NOM[tipo]],['Número de equipos',e],['Días de alquiler',d],['Días adicionales',a],['Valor alquiler',money(r.base)],['Valor días adicionales',money(r.adicional)]];
+  var cls='';
+  if(tipo===2)rows.push(['Incremento domicilio (5 %)','+ '+money(r.ajuste)]);
+  if(tipo===3)rows.push(['Descuento establecimiento (5 %)','− '+money(-r.ajuste)]);
+  if(a>0)rows.push(['Descuento ya aplicado en días adicionales','− '+money(r.descAdic)]);
+  if(tipo===1)rows.push(['Descuentos / incrementos','$ 0']);
+  rows.push(['TOTAL A PAGAR',money(r.total)]);
+  var txt='FACTURA ALQUIPC\n'+rows.map(function(x){return x[0]+': '+x[1]}).join('\n')+'\nGracias por utilizar nuestros servicios.';
+  $('inv').innerHTML=rows.map(function(x,i){var c=i===rows.length-1?'t':(String(x[1]).indexOf('+ ')===0?'pos':String(x[1]).indexOf('−')===0?'neg':'');return '<div class="'+c+'"><span>'+x[0]+'</span><span>'+String(x[1]).replace(/</g,'&lt;')+'</span></div>'}).join('');
+  $('ft').textContent=id;
+  $('mt').href='mailto:'+encodeURIComponent($('mail').value.trim())+'?subject='+encodeURIComponent('Factura ALQUIPC '+id)+'&body='+encodeURIComponent(txt);
+  last=txt;
+  wr(KC,String(parseInt(id.slice(4),10)));
+  var h=arr(KH);h.push(new Date().toLocaleString()+'\n'+txt);wr(KH,JSON.stringify(h.slice(-50)));drawH();
+  $('tm').textContent='Factura generada en '+(performance.now()-t0).toFixed(1)+' ms';
+}
+$('next').onclick=function(){
+  try{
+    if(step===3){['nom','fon','mail'].forEach(function(i){$(i).value=''});$('eq').value=2;$('di').value=1;$('ad').value=0;step=0;$('nid').textContent=nextId();show();return}
+    if(!validar(step))return;
+    if(step===2)factura();
+    step++;show();
+  }catch(x){err('Ocurrió un error inesperado, pero el programa sigue funcionando.','Excepción: '+x)}
+};
+$('back').onclick=function(){if(step>0){step--;show()}};
+$('cp').onclick=function(){try{navigator.clipboard.writeText(last).then(function(){$('cp').textContent='¡Copiado!'},function(){$('cp').textContent='Seleccione y copie manualmente'})}catch(e){$('cp').textContent='No se pudo copiar'}};
+$('hclr').onclick=function(){wr(KH,'[]');drawH()};$('lclr').onclick=function(){wr(KL,'[]');drawL()};
+document.querySelectorAll('nav button').forEach(function(b){b.onclick=function(){
+  document.querySelectorAll('nav button').forEach(function(x){x.classList.toggle('on',x===b)});
+  ['app','his','log'].forEach(function(id){$(id).classList.toggle('hide',id!==b.dataset.t)})}});
+
+$('nid').textContent=nextId();drawL();drawH();show();
+</script>
+</body>
+</html>
